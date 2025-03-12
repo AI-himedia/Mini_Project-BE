@@ -37,9 +37,9 @@ translated_diary = [translate_korean_to_english(sentence) for sentence in korean
 def get_random_samples(data_list, num_samples=3):
 
     if len(data_list) <= num_samples:
-        return data_list  # 리스트 길이가 3 이하이면 그대로 반환
+        return data_list
     else:
-        return random.sample(data_list, num_samples)  # 3보다 크면 랜덤으로 선택
+        return random.sample(data_list, num_samples)
 
 
 end_time = time.time()
