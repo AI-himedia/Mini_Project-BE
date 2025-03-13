@@ -1,5 +1,9 @@
+from fastapi import APIRouter, Query
+from fastapi.responses import Response, FileResponse
 import easyocr
 import time
+
+ocr_router = APIRouter()
 
 def extract_text_from_image(image_path):
     # Initialize the OCR model
@@ -20,6 +24,16 @@ if __name__ == "__main__":
     print('Extracted Text:', extracted_text)
 
 
+
+@ocr_router.post("/img_ocr")
+def img_ocr(
+    image: UploadFile = File(...)
+):
+    contents = image.read()
+    # filename = f"temp_{image.filename}"
+    # with open(filename, "wb") as f:
+    #     f.write(contents)
+    return Response(extract_text_from_image(contents))
 # Measure the time taken for OCR
 # start_time = time.time()
 # 이미지 경로 지정
