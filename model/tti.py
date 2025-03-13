@@ -37,7 +37,7 @@ def tti_view():
     for text in diary_text:
         image_data = generate_image(text)
         
-        # filename 생성
+        # filename 랜덤 생성
         filename = f"{uuid.uuid4()}.jpg"
         
         if not os.path.exists(OUTPUT_IMAGE_PATH):
