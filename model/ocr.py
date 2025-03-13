@@ -20,9 +20,6 @@ if __name__ == "__main__":
     print('Extracted Text:', extracted_text)
 
 
-
-
-
 # Measure the time taken for OCR
 # start_time = time.time()
 # 이미지 경로 지정
