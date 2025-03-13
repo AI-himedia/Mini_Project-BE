@@ -7,6 +7,8 @@ from diffusers import AutoPipelineForText2Image
 import uuid
 import os
 import model.translation as translation
+import time
+
 
 tti_router = APIRouter()
 
@@ -23,7 +25,10 @@ def generate_image(result: str):
     )
     pipe.to(device)
 
-    images = pipe(result, num_inference_steps=6).images[0]
+# 텍스트 기반 이미지 생성, 바이너리 데이트를 반환
+def generate_image(text: str) -> bytes:
+
+    images = pipe(text, num_inference_steps=6).images[0]
 
     buffer = BytesIO()
     images.save(buffer, format="JPEG")
@@ -31,10 +36,22 @@ def generate_image(result: str):
 
     return buffer.getvalue()
 
+
+# 영어문단 3개에 대한 이미지 정보 반환
 @tti_router.post("/sdxl_dpo_turbo")
 def tti_view():
-    results = []
     
+    start_time = time.time()
+    diary_text = translation.result
+
+    if not diary_text:
+        return {"error": "No translated text available"}
+    
+    results = []
+
+    if not os.path.exists(OUTPUT_IMAGE_PATH):
+        os.makedirs(OUTPUT_IMAGE_PATH)
+
     for text in diary_text:
         image_data = generate_image(text)
         
@@ -54,13 +71,22 @@ def tti_view():
             "view_link": f"/sdxl_dpo_turbo/view/{filename}"
         })
 
-    return results
+    end_time = time.time()
+    elapsed_time = end_time - start_time
 
+
+    print(f"이미지 출력 시간: {elapsed_time:.4f} 초")
+
+    return {"message": "Images generated successfully", "images": results}
+
+# 저장된 이미지 조회 API
 @tti_router.get("/sdxl_dpo_turbo/view/{filename}")
 def view_image(filename: str):
     file_path = os.path.join(OUTPUT_IMAGE_PATH, filename)
     return Response(content=open(file_path, "rb").read(), media_type="image/jpeg")
 
+
+# 생성된 이미지 다운로드 API
 @tti_router.get("/sdxl_dpo_turbo/download/{filename}")
 def download_image(filename: str, new_filename: str = Query(None)):
     file_path = os.path.join(OUTPUT_IMAGE_PATH, filename)
