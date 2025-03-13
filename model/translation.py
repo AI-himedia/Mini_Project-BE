@@ -1,5 +1,5 @@
 from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
-import mini_lm
+import model.mini_lm as mini_lm
 import time
 import random
 import torch
@@ -46,6 +46,7 @@ end_time = time.time()
 elapsed_time = end_time - start_time
 
 print(get_random_samples(translated_diary))
+result = get_random_samples(translated_diary)
 
 print(f"총 실행 시간: {elapsed_time:.4f} 초")
 print(f"평균 실행 시간 (문장당): {elapsed_time / len(korean_diary):.4f} 초")
