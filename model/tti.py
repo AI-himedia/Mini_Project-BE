@@ -6,13 +6,13 @@ import torch
 from diffusers import AutoPipelineForText2Image
 import uuid
 import os
-from .mini_lm import context_based_paragraph_split, load_embedding_model
+import model.translation as translation
 
 tti_router = APIRouter()
 
 OUTPUT_IMAGE_PATH = "./generated_images"
 
-embedding_model, device = load_embedding_model()
+diary_text = translation.result
 
 def generate_image(result: str):
     device = torch.device("mps")
@@ -31,12 +31,11 @@ def generate_image(result: str):
     return buffer.getvalue()
 
 @tti_router.post("/sdxl_dpo_turbo")
-def tti_view(text: str):
-    paragraphs = context_based_paragraph_split(text, embedding_model)
+def tti_view():
     results = []
     
-    for paragraph in paragraphs:
-        image_data = generate_image(paragraph)
+    for text in diary_text:
+        image_data = generate_image(text)
         
         # filename 생성
         filename = f"{uuid.uuid4()}.jpg"
