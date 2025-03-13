@@ -18,8 +18,8 @@ pipe = StableDiffusionXLPipeline.from_pretrained("etri-vilab/koala-700m-llava-ca
 pipe.to(device)
 
 
-@router.post("/preview_image")
-async def preview_image(prompt: str):
+@router.post("/koala_image")
+async def koala_image(prompt: str):
     image = pipe(prompt=prompt, num_inference_steps=30).images[0]
 
     buffered = BytesIO()
