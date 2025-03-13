@@ -14,12 +14,16 @@ tti_router = APIRouter()
 
 OUTPUT_IMAGE_PATH = "./generated_images"
 
-device = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
+diary_text = translation.result
 
-pipe = AutoPipelineForText2Image.from_pretrained(
-    "thibaud/sdxl_dpo_turbo", torch_dtype=torch.float16 if device.type != "cpu" else torch.float32, use_safetensors=True, variant="fp16"
-)
-pipe.to(device)
+def generate_image(result: str):
+    # 기기 자동 선택
+    device = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
+    
+    pipe = AutoPipelineForText2Image.from_pretrained(
+        "thibaud/sdxl_dpo_turbo", torch_dtype=torch.float16, use_safetensors=True, variant="fp16"
+    )
+    pipe.to(device)
 
 # 텍스트 기반 이미지 생성, 바이너리 데이트를 반환
 def generate_image(text: str) -> bytes:
