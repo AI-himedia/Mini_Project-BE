@@ -2,29 +2,23 @@ from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 import torch
 import re
-import main
-import requests
-from fastapi import FastAPI
+from fastapi import APIRouter
 from pydantic import BaseModel
 
 
-app = FastAPI()
+lm_router = APIRouter()
 
-text = None
+text = ""
 
 class TextInput(BaseModel):
     text: str
 
-@app.post("/save_text")
+# 클라이언트에서 받은 일기 텍스트 저장
+@lm_router.post("/save_text")
 def save_text(data: TextInput):
     global text
-    text = data.text  # 클라이언트에서 받은 텍스트 저장
+    text = data.text 
     return {"message": "Text saved successfully", "text": text}
-
-# 저장된 텍스트 확인 API (디버깅용)
-@app.get("/get_text")
-def get_saved_text():
-    return {"text": text}
 
 
 # 문단 분리 모델 로딩
