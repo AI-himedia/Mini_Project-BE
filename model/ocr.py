@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Query, File, UploadFile
 from fastapi.responses import Response, FileResponse
 import easyocr
 import time
@@ -26,10 +26,10 @@ if __name__ == "__main__":
 
 
 @ocr_router.post("/img_ocr")
-def img_ocr(
+async def img_ocr(
     image: UploadFile = File(...)
 ):
-    contents = image.read()
+    contents = await image.read()
     # filename = f"temp_{image.filename}"
     # with open(filename, "wb") as f:
     #     f.write(contents)
