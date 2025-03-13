@@ -2,12 +2,23 @@ from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 import torch
 import re
-import time
+from fastapi import APIRouter
+from pydantic import BaseModel
 
 
-# start_time = time.time()
+lm_router = APIRouter()
 
-text = "어떤 날들은 그냥 스쳐 지나가는 것 같다. 눈을 뜨고, 프로젝트를 하고, 밥을 먹고, 자는 하루의 반복. 하지만 오늘은 그 패턴을 깨보기로 했다. 목적 없이 거리를 걸어보았다. 신선한 공기가 다르게 느껴졌다. 마치 내가 살던 동네를 새롭게 발견하는 기분이었다. 작은 서점을 발견해서 눈에 띄는 소설 한 권을 골랐다. 아마도 평범한 날들 속에서도 작은 놀라움이 숨어 있다는 걸 기억하라는 신호일지도 모른다."
+text = ""
+
+class TextInput(BaseModel):
+    text: str
+
+# 클라이언트에서 받은 일기 텍스트 저장
+@lm_router.post("/save_text")
+def save_text(data: TextInput):
+    global text
+    text = data.text 
+    return {"message": "Text saved successfully", "text": text}
 
 
 # 문단 분리 모델 로딩
@@ -61,7 +72,3 @@ def context_based_paragraph_split(text, embedding_model, threshold=0.7, max_sent
 
 
 result = context_based_paragraph_split(text, embedding_model, max_sentences_per_paragraph=3)
-
-# end_time = time.time() 
-# elapsed_time = end_time - start_time
-# print(f"문단 나누기 실행 시간: {elapsed_time:.4f} 초")
