@@ -6,10 +6,13 @@ import torch
 from diffusers import AutoPipelineForText2Image
 import uuid
 import os
+from .mini_lm import context_based_paragraph_split, load_embedding_model
 
 tti_router = APIRouter()
 
 OUTPUT_IMAGE_PATH = "./generated_images"
+
+embedding_model, device = load_embedding_model()
 
 def generate_image(result: str):
     device = torch.device("mps")
@@ -27,25 +30,31 @@ def generate_image(result: str):
 
     return buffer.getvalue()
 
-@tti_router.post("/sdxl_dpo_turbo/view")
-def tti_view(result: str):
-    image_data = generate_image(result)
+@tti_router.post("/sdxl_dpo_turbo")
+def tti_view(text: str):
+    paragraphs = context_based_paragraph_split(text, embedding_model)
+    results = []
     
-    # filename 생성
-    filename = f"{uuid.uuid4()}.jpg"
-    
-    if not os.path.exists(OUTPUT_IMAGE_PATH):
-        os.makedirs(OUTPUT_IMAGE_PATH)
+    for paragraph in paragraphs:
+        image_data = generate_image(paragraph)
+        
+        # filename 생성
+        filename = f"{uuid.uuid4()}.jpg"
+        
+        if not os.path.exists(OUTPUT_IMAGE_PATH):
+            os.makedirs(OUTPUT_IMAGE_PATH)
 
-    file_path = os.path.join(OUTPUT_IMAGE_PATH, filename)
-    with open(file_path, "wb") as f:
-        f.write(image_data)
+        file_path = os.path.join(OUTPUT_IMAGE_PATH, filename)
+        with open(file_path, "wb") as f:
+            f.write(image_data)
 
-    return {
-        "filename": filename,
-        "download_link": f"/sdxl_dpo_turbo/download/{filename}",
-        "view_link": f"/sdxl_dpo_turbo/view/{filename}"
-    }
+        results.append({
+            "filename": filename,
+            "download_link": f"/sdxl_dpo_turbo/download/{filename}",
+            "view_link": f"/sdxl_dpo_turbo/view/{filename}"
+        })
+
+    return results
 
 @tti_router.get("/sdxl_dpo_turbo/view/{filename}")
 def view_image(filename: str):
