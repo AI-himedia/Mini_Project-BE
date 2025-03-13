@@ -15,7 +15,8 @@ OUTPUT_IMAGE_PATH = "./generated_images"
 diary_text = translation.result
 
 def generate_image(result: str):
-    device = torch.device("mps")
+    # 기기 자동 선택
+    device = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
     
     pipe = AutoPipelineForText2Image.from_pretrained(
         "thibaud/sdxl_dpo_turbo", torch_dtype=torch.float16, use_safetensors=True, variant="fp16"
