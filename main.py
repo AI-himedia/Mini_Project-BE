@@ -1,8 +1,5 @@
-from fastapi import FastAPI, File, UploadFile, Response
-from diffusers import AutoPipelineForText2Image
-from io import BytesIO
+from fastapi import FastAPI
 from model import routers
-import torch
 import uvicorn
 
 app = FastAPI()
