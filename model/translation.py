@@ -1,5 +1,5 @@
 from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
-import mini_lm
+import model.mini_lm as mini_lm
 import random
 import torch
 

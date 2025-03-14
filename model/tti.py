@@ -3,12 +3,11 @@ from fastapi.responses import Response, FileResponse
 from PIL import Image
 from io import BytesIO
 import torch
-from diffusers import AutoPipelineForText2Image
+from diffusers import AutoPipelineForText2Image, StableDiffusionXLPipeline
 import uuid
 import os
-import translation
+import model.translation as translation
 import time
-
 
 tti_router = APIRouter()
 
@@ -16,19 +15,50 @@ OUTPUT_IMAGE_PATH = "./generated_images"
 
 diary_text = translation.translated_diary
 
-def generate_image(result: str):
+# 사용 가능한 모델 리스트
+AVAILABLE_MODELS = {
+    "thibaud/sdxl_dpo_turbo": {
+        "model_name": "thibaud/sdxl_dpo_turbo",
+        "pipeline": AutoPipelineForText2Image,
+        "num_inference_steps": 6
+    },
+    "etri-vilab/koala-700m-llava-cap": {
+        "model_name": "etri-vilab/koala-700m-llava-cap",
+        "pipeline": StableDiffusionXLPipeline,
+        "num_inference_steps": 35
+    },
+    "sd-community/sdxl-flash": {
+        "model_name": "sd-community/sdxl-flash",
+        "pipeline": StableDiffusionXLPipeline,
+        "num_inference_steps": 7
+    }
+}
+
+# 텍스트 기반 이미지 생성, 바이너리 데이트를 반환
+def generate_image(result: str, model_name: str):
     # 기기 자동 선택
     device = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
     
-    pipe = AutoPipelineForText2Image.from_pretrained(
-        "thibaud/sdxl_dpo_turbo", torch_dtype=torch.float16, use_safetensors=True, variant="fp16"
-    )
+    if model_name not in AVAILABLE_MODELS:
+        raise ValueError(f"Unsupported model: {model_name}")
+    
+    if model_name == "thibaud/sdxl_dpo_turbo":
+        kwargs = {
+            "pretrained_model_or_path": AVAILABLE_MODELS[model_name]["model_name"],
+            "torch_dtype": torch.float16,
+            "use_safetensors": True,
+            "variant": "fp16"
+        }
+    else:
+        kwargs = {
+            "pretrained_model_name_or_path": AVAILABLE_MODELS[model_name]["model_name"],
+            "torch_dtype": torch.float16
+        }
+    
+    pipe = AVAILABLE_MODELS[model_name]["pipeline"].from_pretrained(**kwargs)
     pipe.to(device)
 
-# 텍스트 기반 이미지 생성, 바이너리 데이트를 반환
-def generate_image(text: str) -> bytes:
-
-    images = pipe(text, num_inference_steps=6).images[0]
+    images = pipe(result, num_inference_steps=AVAILABLE_MODELS[model_name]["num_inference_steps"]).images[0]
 
     buffer = BytesIO()
     images.save(buffer, format="JPEG")
@@ -36,24 +66,19 @@ def generate_image(text: str) -> bytes:
 
     return buffer.getvalue()
 
-
 # 영어문단 3개에 대한 이미지 정보 반환
-@tti_router.post("/sdxl_dpo_turbo")
-def tti_view():
-    
+@tti_router.post("/image/generate")
+def tti_view(model_name: str):
     start_time = time.time()
-    diary_text = translation.result
+    diary_text = translation.translated_diary
 
     if not diary_text:
         return {"error": "No translated text available"}
     
     results = []
-
-    if not os.path.exists(OUTPUT_IMAGE_PATH):
-        os.makedirs(OUTPUT_IMAGE_PATH)
-
+    
     for text in diary_text:
-        image_data = generate_image(text)
+        image_data = generate_image(text, model_name)
         
         # filename 랜덤 생성
         filename = f"{uuid.uuid4()}.jpg"
@@ -71,23 +96,21 @@ def tti_view():
             "view_link": f"/sdxl_dpo_turbo/view/{filename}"
         })
 
-    end_time = time.time()
-    elapsed_time = end_time - start_time
-
+        end_time = time.time()
+        elapsed_time = end_time - start_time
 
     print(f"이미지 출력 시간: {elapsed_time:.4f} 초")
 
     return {"message": "Images generated successfully", "images": results}
 
 # 저장된 이미지 조회 API
-@tti_router.get("/sdxl_dpo_turbo/view/{filename}")
+@tti_router.get("/image/view/{filename}")
 def view_image(filename: str):
     file_path = os.path.join(OUTPUT_IMAGE_PATH, filename)
     return Response(content=open(file_path, "rb").read(), media_type="image/jpeg")
 
-
 # 생성된 이미지 다운로드 API
-@tti_router.get("/sdxl_dpo_turbo/download/{filename}")
+@tti_router.get("/image/download/{filename}")
 def download_image(filename: str, new_filename: str = Query(None)):
     file_path = os.path.join(OUTPUT_IMAGE_PATH, filename)
     
