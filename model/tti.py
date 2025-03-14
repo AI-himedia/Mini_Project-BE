@@ -16,38 +16,21 @@ OUTPUT_IMAGE_PATH = "./generated_images"
 diary_text = translation.result
 
 # 사용 가능한 모델 리스트
-# AVAILABLE_MODELS = {
-#     "thibaud/sdxl_dpo_turbo": {
-#         "model_name": "thibaud/sdxl_dpo_turbo",
-#         "pipeline": AutoPipelineForText2Image,
-#         "num_inference_steps": 6,
-#         "use_safetensors": True,
-#         "variant": "fp16"
-#     },
-#     "etri-vilab/koala-700m-llava-cap": {
-#         "model_name": "etri-vilab/koala-700m-llava-cap",
-#         "pipeline": StableDiffusionXLPipeline,
-#         "num_inference_steps": 35,
-#         "use_safetensors": False,
-#         "variant": None
-#     },
-#     "sd-community/sdxl-flash": {
-#         "model_name": "sd-community/sdxl-flash",
-#         "pipeline": StableDiffusionXLPipeline,
-#         "num_inference_steps": 7,
-#         "use_safetensors": False,
-#         "variant": None
-#     }
-# }
-
-# 임시 모델
 AVAILABLE_MODELS = {
     "thibaud/sdxl_dpo_turbo": {
         "model_name": "thibaud/sdxl_dpo_turbo",
         "pipeline": AutoPipelineForText2Image,
-        "num_inference_steps": 6,
-        "use_safetensors": True,
-        "variant": "fp16"
+        "num_inference_steps": 6
+    },
+    "etri-vilab/koala-700m-llava-cap": {
+        "model_name": "etri-vilab/koala-700m-llava-cap",
+        "pipeline": StableDiffusionXLPipeline,
+        "num_inference_steps": 35
+    },
+    "sd-community/sdxl-flash": {
+        "model_name": "sd-community/sdxl-flash",
+        "pipeline": StableDiffusionXLPipeline,
+        "num_inference_steps": 7
     }
 }
 
@@ -59,12 +42,20 @@ def generate_image(result: str, model_name: str):
     if model_name not in AVAILABLE_MODELS:
         raise ValueError(f"Unsupported model: {model_name}")
     
-    pipe = AVAILABLE_MODELS[model_name]["pipeline"].from_pretrained(
-        AVAILABLE_MODELS[model_name]["model_name"],
-        torch_dtype=torch.float16,
-        use_safetensors=AVAILABLE_MODELS[model_name]["use_safetensors"] if "use_safetensors" in AVAILABLE_MODELS[model_name] else False,
-        variant=AVAILABLE_MODELS[model_name]["variant"] if "variant" in AVAILABLE_MODELS[model_name] else None
-    )
+    if model_name == "thibaud/sdxl_dpo_turbo":
+        kwargs = {
+            "pretrained_model_or_path": AVAILABLE_MODELS[model_name]["model_name"],
+            "torch_dtype": torch.float16,
+            "use_safetensors": True,
+            "variant": "fp16"
+        }
+    else:
+        kwargs = {
+            "pretrained_model_name_or_path": AVAILABLE_MODELS[model_name]["model_name"],
+            "torch_dtype": torch.float16
+        }
+    
+    pipe = AVAILABLE_MODELS[model_name]["pipeline"].from_pretrained(**kwargs)
     pipe.to(device)
 
     images = pipe(result, num_inference_steps=AVAILABLE_MODELS[model_name]["num_inference_steps"]).images[0]
