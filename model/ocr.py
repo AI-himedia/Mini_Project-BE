@@ -19,7 +19,7 @@ def extract_text_from_image(image_path):
 
 # Example usage
 if __name__ == "__main__":
-    image_path = 'handwriting_diary_log.png'  # Specify your image path
+    image_path = 'handwriting_diary_log.png'
     extracted_text = extract_text_from_image(image_path)
     print('Extracted Text:', extracted_text)
 

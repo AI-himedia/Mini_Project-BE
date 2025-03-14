@@ -17,6 +17,10 @@ print(f"번역 모델 로드 완료. ({device.type.upper()} 사용 중)")
 
 korean_diary = mini_lm.result
 
+# 랜덤으로 문단 3개 추출
+def get_random_samples(data_list, num_samples=3):
+    return random.sample(data_list, min(num_samples, len(data_list)))
+
 # 한글 -> 영어 
 def translate_korean_to_english(text):
     inputs = tokenizer(text, return_tensors="pt") 
@@ -31,13 +35,7 @@ def translate_korean_to_english(text):
 
 
 # 번역 결과 추출
-translated_diary = [translate_korean_to_english(sentence) for sentence in korean_diary]
+random_korean_samples = get_random_samples(korean_diary, 3)
+translated_diary = [translate_korean_to_english(sentence) for sentence in random_korean_samples]
 
-# 랜덤으로 문단 3개 추출
-def get_random_samples(data_list, num_samples=3):
-    return random.sample(data_list, min(num_samples, len(data_list)))
-
-
-print(get_random_samples(translated_diary))
-
-result = get_random_samples(translated_diary)
+print(translated_diary)
