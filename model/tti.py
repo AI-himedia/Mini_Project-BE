@@ -13,7 +13,7 @@ tti_router = APIRouter()
 
 OUTPUT_IMAGE_PATH = "./generated_images"
 
-diary_text = translation.result
+diary_text = translation.translated_diary
 
 # 사용 가능한 모델 리스트
 AVAILABLE_MODELS = {
@@ -70,7 +70,7 @@ def generate_image(result: str, model_name: str):
 @tti_router.post("/image/generate")
 def tti_view(model_name: str):
     start_time = time.time()
-    diary_text = translation.result
+    diary_text = translation.translated_diary
 
     if not diary_text:
         return {"error": "No translated text available"}
