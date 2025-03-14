@@ -92,8 +92,8 @@ def tti_view(model_name: str):
 
         results.append({
             "filename": filename,
-            "download_link": f"/sdxl_dpo_turbo/download/{filename}",
-            "view_link": f"/sdxl_dpo_turbo/view/{filename}"
+            "download_link": f"/image/download/{filename}",
+            "view_link": f"/image/view/{filename}"
         })
 
         end_time = time.time()
