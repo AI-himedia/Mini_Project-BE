@@ -62,10 +62,14 @@ def generate_image(result: str, model_name: str):
                         """poorly drawn hands and feet,
                         extra fingers, fused limbs,
                         distorted facial features,
+                        cropped,
+                        distorted anatomy,
+                        poorly drawn face,
                         bad anatomy"""
                         )
 
     images = pipe(result, num_inference_steps=AVAILABLE_MODELS[model_name]["num_inference_steps"], negative_prompt=negative_prompt).images[0]
+    # images = pipe(result, num_inference_steps=AVAILABLE_MODELS[model_name]["num_inference_steps"]).images[0]
 
     buffer = BytesIO()
     images.save(buffer, format="JPEG")
