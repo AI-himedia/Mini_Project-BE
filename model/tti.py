@@ -6,7 +6,7 @@ import torch
 from diffusers import AutoPipelineForText2Image
 import uuid
 import os
-import model.translation as translation
+import translation
 import time
 
 
@@ -14,7 +14,7 @@ tti_router = APIRouter()
 
 OUTPUT_IMAGE_PATH = "./generated_images"
 
-diary_text = translation.result
+diary_text = translation.translated_diary
 
 def generate_image(result: str):
     # 기기 자동 선택
