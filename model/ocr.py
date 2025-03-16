@@ -1,3 +1,5 @@
+# model/ocr.py
+
 from fastapi import APIRouter, Query, File, UploadFile
 from fastapi.responses import Response, FileResponse
 import easyocr

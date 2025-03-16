@@ -1,3 +1,5 @@
+# model/translation.py
+
 from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
 import model.mini_lm as mini_lm
 import random
