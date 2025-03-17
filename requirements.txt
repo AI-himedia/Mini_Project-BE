@@ -1,0 +1,16 @@
+torch==2.6.0
+torchvision==0.21.0
+torchaudio==2.6.0
+numpy>=1.24.0
+pillow>=11.0.0
+python-multipart>=0.0.9
+easyocr>=1.7.1
+python-dotenv>=1.0.1
+huggingface-hub>=0.13.0
+# To ensure app dependencies are ported from your virtual environment/host machine into your container, run 'pip freeze > requirements.txt' in the terminal to overwrite this file
+fastapi[all]==0.109.0
+uvicorn[standard]==0.27.0
+gunicorn==21.2.0
+diffusers[torch]
+transformers[torch]
+sentence_transformers[torch]
