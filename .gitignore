@@ -64,6 +64,10 @@ share/python-wheels/
 *.egg
 MANIFEST
 generated_images/
+.vscode/
+.dockerignore
+Dockerfile
+requirements.txt
 
 # PyInstaller
 #  Usually these files are written by a python script from a template

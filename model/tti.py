@@ -80,7 +80,7 @@ def generate_image(result: str, model_name: str):
 
 # 영어문단 3개에 대한 이미지 정보 반환
 @tti_router.post("/image/generate")
-def tti_view(model_name: str):
+def tti_view():
     start_time = time.time()
     diary_text = translation.translated_diary
 
@@ -138,4 +138,4 @@ def download_image(filename: str, new_filename: str = Query(None)):
     
     return FileResponse(file_path, media_type="image/jpg", headers=headers)
 
-tti_view(model_name)
+tti_view()
