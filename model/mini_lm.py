@@ -2,6 +2,7 @@
 
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
+import model.mini_lm as mini_lm
 import torch
 import re
 from fastapi import APIRouter
@@ -24,8 +25,16 @@ class TextInput(BaseModel):
 @lm_router.post("/save_text")
 def save_text(data: TextInput):
     global text
-    text = data.text 
+    text = data.text  
+    print("✅ DEBUG: save_text에서 저장된 원본 텍스트:", text)  # 디버깅 추가
+
+    # `mini_lm.result` 업데이트
+    mini_lm.result = context_based_paragraph_split(text, embedding_model)
+    print("✅ DEBUG: save_text 이후 mini_lm.result:", mini_lm.result)  # 디버깅 추가
+
     return {"message": "Text saved successfully", "text": text}
+
+    
 
 
 # 구두점으로 1차 분리
