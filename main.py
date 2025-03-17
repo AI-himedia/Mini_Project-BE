@@ -1,3 +1,5 @@
+# main.py
+
 from fastapi import FastAPI, File, UploadFile, Response
 from fastapi.middleware.cors import CORSMiddleware
 from diffusers import AutoPipelineForText2Image

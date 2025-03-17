@@ -1,3 +1,5 @@
+# model/tti.py
+
 from fastapi import APIRouter, Query
 from fastapi.responses import Response, FileResponse
 from PIL import Image
@@ -14,6 +16,7 @@ tti_router = APIRouter()
 OUTPUT_IMAGE_PATH = "./generated_images"
 
 diary_text = translation.translated_diary
+model_name = "etri-vilab/koala-700m-llava-cap"
 
 # 사용 가능한 모델 리스트
 AVAILABLE_MODELS = {
@@ -81,9 +84,14 @@ def generate_image(result: str, model_name: str):
 @tti_router.post("/image/generate")
 def tti_view(model_name: str):
     start_time = time.time()
-    diary_text = translation.translated_diary
+
+ # 번역된 텍스트 가져오기
+    translation.update_translated_diary()  # ✅ 번역된 데이터를 최신 상태로 갱신
+    diary_text = translation.translated_diary  
+    print("✅ DEBUG: /image/generate 호출 시 번역된 텍스트:", diary_text)  # 추가 로그
 
     if not diary_text:
+        print("❌ ERROR: 번역된 텍스트가 없습니다. save_text 이후 update_translated_diary가 실행되었는지 확인하세요.")
         return {"error": "No translated text available"}
     
     results = []
@@ -136,3 +144,5 @@ def download_image(filename: str, new_filename: str = Query(None)):
         }
     
     return FileResponse(file_path, media_type="image/jpg", headers=headers)
+
+# tti_view(model_name)
