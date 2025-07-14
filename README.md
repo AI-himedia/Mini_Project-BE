@@ -21,19 +21,6 @@
 
 ## 개발팀 소개
 
-### 프론트엔드
-<table>
-  <tr>
-    <td align="center">
-      <a href="https://github.com/dijeungi">
-        <img src="https://github.com/dijeungi.png" width="100px" style="border-radius: 50%;" />
-      </a>
-      <br />
-      <b>최준호</b>
-    </td>
-  </tr>
-</table>
-
 ### 백엔드
 <table>
   <tr>
