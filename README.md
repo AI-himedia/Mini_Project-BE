@@ -72,6 +72,13 @@
       <br />
       <b>김세광</b>
     </td>
+        <td align="center">
+      <a href="https://github.com/dijeungi">
+        <img src="https://github.com/dijeungi.png" width="100px" style="border-radius: 50%;" />
+      </a>
+      <br />
+      <b>최준호</b>
+    </td>
   </tr>
 </table>
 
